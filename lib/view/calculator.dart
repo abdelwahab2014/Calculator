@@ -1,7 +1,8 @@
 import 'package:calculator/view/model.dart';
 import 'package:calculator/view/my_buttons.dart';
+import 'package:calculator/widgets/app_bar.dart';
+import 'package:calculator/widgets/text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:math_expressions/math_expressions.dart';
 
 class Calculator extends StatefulWidget {
@@ -29,51 +30,45 @@ class _CalculatorState extends State<Calculator> {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
+    var padding2 = screenSize.width * 0.03;
+    var crossAxisSpacing = screenSize.width * 0.0001;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Created By: Abdelwahab Adam')),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: textEditingController,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp("[0-9].")),
-                ],
-                readOnly: true,
-                showCursor: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+        appBar: appBar,
+        body: Padding(
+          padding: EdgeInsets.all(padding2),
+          child: Column(
+            children: [
+              SizedBox(
+                height: screenSize.height * 0.05,
+              ),
+              TextFieldWidget(textEditingController: textEditingController),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4, crossAxisSpacing: crossAxisSpacing),
+                  itemCount: calItems.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Mybuttons(
+                      buttonTapped: () => buttonTap(calItems[index]),
+                      textColor: Colors.white,
+                      buttonColor: isOperator(calItems[index])
+                          ? Colors.black
+                          : calItems[index] == 'DEL'
+                              ? Colors.blue
+                              : calItems[index] == 'C'
+                                  ? Colors.red
+                                  : calItems[index] == '='
+                                      ? Colors.green
+                                      : Colors.grey,
+                      buttonText: calItems[index],
+                    );
+                  },
                 ),
               ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, crossAxisSpacing: 4),
-                itemCount: calItems.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Mybuttons(
-                    buttonTapped: () => buttonTap(calItems[index]),
-                    textColor: Colors.white,
-                    buttonColor: isOperator(calItems[index])
-                        ? Colors.black
-                        : calItems[index] == 'DEL'
-                            ? Colors.blue
-                            : calItems[index] == 'C'
-                                ? Colors.red
-                                : calItems[index] == '='
-                                    ? Colors.green
-                                    : Colors.grey,
-                    buttonText: calItems[index],
-                  );
-                },
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -135,7 +130,10 @@ class _CalculatorState extends State<Calculator> {
         });
       } else {
         setState(() {
-          textEditingController.text = "ERROR!!";
+          if (textEditingController.text.isEmpty) {
+          } else {
+            textEditingController.text = "error";
+          }
           //Future.delayed(const Duration(seconds: 10));
           //textEditingController.clear();
         });
